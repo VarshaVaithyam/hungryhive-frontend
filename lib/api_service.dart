@@ -4,13 +4,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-
-  // Emulator → 10.0.2.2
-  // Real device → your PC IP
-  static const String baseUrl = "http://192.168.1.41:8080";
+  static const String baseUrl =
+      "https://hungryhive-backend-t081.onrender.com";
 
   // =========================
-  // ✅ ADD FOOD
+  // ADD FOOD
   // =========================
   static Future<bool> addFood(
     String name,
@@ -23,13 +21,14 @@ class ApiService {
     String location,
     String ownerUserId,
   ) async {
-
-    print("API CALLED 🚀");
+    print("ADD FOOD API CALLED");
 
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/food/add"),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: jsonEncode({
           "foodName": items,
           "donorName": name,
@@ -46,19 +45,17 @@ class ApiService {
       print("BODY: ${response.body}");
 
       return response.statusCode == 200 || response.statusCode == 201;
-
     } catch (e) {
-      print("ERROR: $e");
+      print("ERROR ADD FOOD: $e");
       return false;
     }
   }
 
   // =========================
-  // ✅ GET ALL FOOD
+  // GET ALL FOOD
   // =========================
   static Future<List<dynamic>> getAllFood() async {
-
-    print("GET API CALLED 📦");
+    print("GET ALL FOOD API CALLED");
 
     try {
       final response = await http.get(
@@ -70,10 +67,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
-      } else {
-        throw Exception("Failed to load food data");
       }
 
+      throw Exception("Failed to load food data");
     } catch (e) {
       print("ERROR GET FOOD: $e");
       return [];
@@ -81,11 +77,10 @@ class ApiService {
   }
 
   // =========================
-  // ✅ GET AVAILABLE FOOD
+  // GET AVAILABLE FOOD
   // =========================
   static Future<List<dynamic>> getAvailableFood() async {
-
-    print("GET AVAILABLE API 📦");
+    print("GET AVAILABLE FOOD API CALLED");
 
     try {
       final response = await http.get(
@@ -97,10 +92,9 @@ class ApiService {
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
-      } else {
-        throw Exception("Failed to load available food");
       }
 
+      throw Exception("Failed to load available food");
     } catch (e) {
       print("ERROR AVAILABLE FOOD: $e");
       return [];
@@ -108,11 +102,10 @@ class ApiService {
   }
 
   // =========================
-  // ✅ ACCEPT FOOD ⭐ (NEW)
+  // ACCEPT FOOD
   // =========================
   static Future<bool> acceptFood(String id) async {
-
-    print("ACCEPT API CALLED ✅");
+    print("ACCEPT FOOD API CALLED");
 
     try {
       final response = await http.put(
@@ -123,7 +116,6 @@ class ApiService {
       print("BODY: ${response.body}");
 
       return response.statusCode == 200;
-
     } catch (e) {
       print("ERROR ACCEPT FOOD: $e");
       return false;
@@ -131,27 +123,31 @@ class ApiService {
   }
 
   // =========================
-  // ✅ ORDER FOOD
+  // ORDER FOOD
   // =========================
   static Future<bool> orderFood(String id) async {
+    print("ORDER FOOD API CALLED");
+
     try {
       final response = await http.put(
         Uri.parse("$baseUrl/food/order/$id"),
       );
+
       print("ORDER RESPONSE: ${response.statusCode}");
-        return response.statusCode == 200;
-      } catch (e) {
-        print("ERROR ORDER FOOD: $e");
-        return false;
-      }
+      print("BODY: ${response.body}");
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print("ERROR ORDER FOOD: $e");
+      return false;
     }
+  }
 
   // =========================
-  // ✅ DELETE FOOD
+  // DELETE FOOD
   // =========================
   static Future<bool> deleteFood(String id) async {
-
-    print("DELETE API CALLED ❌");
+    print("DELETE FOOD API CALLED");
 
     try {
       final response = await http.put(
@@ -159,9 +155,9 @@ class ApiService {
       );
 
       print("DELETE RESPONSE: ${response.statusCode}");
+      print("BODY: ${response.body}");
 
       return response.statusCode == 200;
-
     } catch (e) {
       print("ERROR DELETE FOOD: $e");
       return false;
