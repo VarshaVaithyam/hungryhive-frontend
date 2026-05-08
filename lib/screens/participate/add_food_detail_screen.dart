@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../api_service.dart';
 import '../thank_you/thank_you_screen.dart';
 
@@ -18,106 +20,41 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
   final quantityController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  bool isLoading = false; // ✅ loading state
+  bool isLoading = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2E6D8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
-        elevation: 0,
-        title: const Text(
-          'ADD FOOD DETAIL',
-          style: TextStyle(
-            color: const Color(0xFF3E2E22),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: const Divider(
-            color: Color(0xFF6B4F3A),
-            thickness: 2,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: const Color(0xFF3E2E22)),
-      ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Food Information',
-              style: TextStyle( color: const Color(0xFF3E2E22),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-
-            _inputField('Name', nameController,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Organization', organizationController,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Phone', phoneController,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Address', addressController, maxLines: 2,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Items', itemsController, maxLines: 3,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Quantity', quantityController, maxLines: 2,textColor: const Color(0xFFE6D8C3)),
-            _inputField('Description', descriptionController, maxLines: 3,textColor: const Color(0xFFE6D8C3)),
-          ],
-        ),
-      ),
-
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24,),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : _submitFood, // ✅ FIXED
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 56),
-            backgroundColor: const Color(0xFF6B4F3A),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
-          ),
-          child: isLoading
-              ? const CircularProgressIndicator(color: Colors.black)
-              : const Text(
-                  'SUBMIT',
-                  style: TextStyle(
-                    color: const Color(0xFFE6D8C3),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-        ),
-      ),
-    );
-  }
-
-  // ✅ MAIN FUNCTION (THIS WAS MISSING)
   Future<void> _submitFood() async {
-    print("BUTTON CLICKED 🔥");
+    final prefs = await SharedPreferences.getInstance();
+    final String ownerUserId = prefs.getString('userId') ?? '';
+
+    print("BUTTON CLICKED");
+    print("LOGGED IN OWNER USER ID: $ownerUserId");
+
+    if (ownerUserId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not logged in. Please login again.")),
+      );
+      return;
+    }
 
     setState(() {
       isLoading = true;
     });
-    final String ownerUserId = phoneController.text.trim();
-    bool success = await ApiService.addFood(
-      nameController.text,
-      itemsController.text,     // quantity -> using items here
-      addressController.text,   // location -> using address
-      phoneController.text,
-      organizationController.text,
-      descriptionController.text,
-      quantityController.text,
-      addressController.text,  
+
+    final bool success = await ApiService.addFood(
+      nameController.text.trim(),
+      itemsController.text.trim(),
+      addressController.text.trim(),
+      phoneController.text.trim(),
+      organizationController.text.trim(),
+      descriptionController.text.trim(),
+      quantityController.text.trim(),
+      addressController.text.trim(),
       ownerUserId,
     );
 
     print("SUCCESS: $success");
+
+    if (!mounted) return;
 
     setState(() {
       isLoading = false;
@@ -130,7 +67,9 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ThankYouScreen()),
+        MaterialPageRoute(
+          builder: (context) => const ThankYouScreen(),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,21 +78,33 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    nameController.dispose();
+    organizationController.dispose();
+    phoneController.dispose();
+    addressController.dispose();
+    itemsController.dispose();
+    quantityController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
   Widget _inputField(
     String hint,
     TextEditingController controller, {
     int maxLines = 1,
-    // ignore: unused_element_parameter
     Color textColor = const Color(0xFFE6D8C3),
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: TextField( style: TextStyle(color: textColor),
+      child: TextField(
         controller: controller,
         maxLines: maxLines,
+        style: TextStyle(color: textColor),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: TextStyle(color: const Color(0xFFE6D8C3)),
+          hintStyle: const TextStyle(color: Color(0xFFE6D8C3)),
           filled: true,
           fillColor: const Color(0xFF6B4F3A),
           contentPadding: const EdgeInsets.symmetric(
@@ -164,6 +115,79 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2E6D8),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF2E6D8),
+        elevation: 0,
+        title: const Text(
+          'ADD FOOD DETAIL',
+          style: TextStyle(
+            color: Color(0xFF3E2E22),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: Divider(
+            color: Color(0xFF6B4F3A),
+            thickness: 2,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Color(0xFF3E2E22)),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Food Information',
+              style: TextStyle(
+                color: Color(0xFF3E2E22),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _inputField('Name', nameController),
+            _inputField('Organization', organizationController),
+            _inputField('Phone', phoneController),
+            _inputField('Address', addressController, maxLines: 2),
+            _inputField('Items', itemsController, maxLines: 3),
+            _inputField('Quantity', quantityController, maxLines: 2),
+            _inputField('Description', descriptionController, maxLines: 3),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: ElevatedButton(
+          onPressed: isLoading ? null : _submitFood,
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 56),
+            backgroundColor: const Color(0xFF6B4F3A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: isLoading
+              ? const CircularProgressIndicator(color: Colors.black)
+              : const Text(
+                  'SUBMIT',
+                  style: TextStyle(
+                    color: Color(0xFFE6D8C3),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../api_service.dart';
 import '../../models/food_model.dart';
 import 'receive_details_screen.dart';
@@ -12,20 +14,61 @@ class ReceiveScreen extends StatefulWidget {
 
 class _ReceiveScreenState extends State<ReceiveScreen> {
   late Future<List<dynamic>> foodList;
-
-  // ✅ replace this with actual logged-in owner id / phone later
-  final String currentUserId = "current_user_id";
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
     foodList = ApiService.getAllFood();
+    loadCurrentUser();
+  }
+
+  Future<void> loadCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final savedUserId = prefs.getString('userId');
+
+    print("CURRENT USER ID FROM SHARED PREFS: $savedUserId");
+
+    setState(() {
+      currentUserId = savedUserId;
+    });
   }
 
   Future<void> refreshData() async {
     setState(() {
       foodList = ApiService.getAllFood();
     });
+  }
+
+  Future<void> deleteFoodItem(FoodModel food) async {
+    if (currentUserId == null || currentUserId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not logged in")),
+      );
+      return;
+    }
+
+    final success = await ApiService.deleteFood(
+      food.id,
+      currentUserId!,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Food deleted successfully")),
+      );
+
+      refreshData();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You can delete only your uploaded food"),
+        ),
+      );
+    }
   }
 
   @override
@@ -38,44 +81,41 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         title: const Text(
           "RECEIVE",
           style: TextStyle(
-            color: const Color(0xFF6B4F3A),
+            color: Color(0xFF6B4F3A),
             fontWeight: FontWeight.bold,
           ),
         ),
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(2),
-          child: const Divider(
+          child: Divider(
             color: Color(0xFF6B4F3A),
             thickness: 2,
           ),
         ),
-        iconTheme: const IconThemeData(color: const Color(0xFF6B4F3A)),
+        iconTheme: const IconThemeData(
+          color: Color(0xFF6B4F3A),
+        ),
       ),
       body: FutureBuilder<List<dynamic>>(
         future: foodList,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }
 
           final foods = snapshot.data ?? [];
 
-          if (foods.isEmpty) {
-            return const Center(child: Text("No food available"));
-          }
-
-          // ✅ convert and hide deleted items
           final foodModels = foods
               .map((e) => FoodModel.fromJson(e))
               .where((food) => food.status != "DELETED")
               .toList();
 
           if (foodModels.isEmpty) {
-            return const Center(child: Text("No food available"));
+            return const Center(
+              child: Text("No food available"),
+            );
           }
 
           return RefreshIndicator(
@@ -93,7 +133,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       MaterialPageRoute(
                         builder: (_) => ReceiveDetailScreen(
                           food: food,
-                          currentUserId: currentUserId,
+                          currentUserId: currentUserId ?? "",
                         ),
                       ),
                     );
@@ -109,11 +149,19 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       ),
     );
   }
-  
 
   Widget _foodCard(BuildContext context, FoodModel food) {
-    final bool isOwner = food.ownerUserId == currentUserId;
-    
+    print("------ FOOD CARD DEBUG ------");
+    print("CURRENT USER ID: $currentUserId");
+    print("FOOD OWNER USER ID: ${food.ownerUserId}");
+    print("FOOD ID: ${food.id}");
+    print("FOOD NAME: ${food.foodName}");
+    print("-----------------------------");
+
+    final bool isOwner =
+        currentUserId != null &&
+        currentUserId!.isNotEmpty &&
+        food.ownerUserId == currentUserId;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -130,40 +178,54 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  food.organization.isEmpty ? "No Organization" : food.organization,
-                  style: const TextStyle(color: const Color(0xFFE6D8C3), fontWeight: FontWeight.bold),
+                  food.organization.isEmpty
+                      ? "No Organization"
+                      : food.organization,
+                  style: const TextStyle(
+                    color: Color(0xFFE6D8C3),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text("Items: ${food.foodName}", style: const TextStyle(color: const Color(0xFFE6D8C3)),),
-                Text("Location: ${food.location}", style: const TextStyle(color: const Color(0xFFE6D8C3)),),
+
+                const SizedBox(height: 6),
+
+                Text(
+                  "Items: ${food.foodName}",
+                  style: const TextStyle(
+                    color: Color(0xFFE6D8C3),
+                    fontSize: 16,
+                  ),
+                ),
+
+                const SizedBox(height: 2),
+
+                Text(
+                  "Location: ${food.location}",
+                  style: const TextStyle(
+                    color: Color(0xFFE6D8C3),
+                    fontSize: 16,
+                  ),
+                ),
               ],
             ),
           ),
 
-          // ✅ delete icon only for owner
           if (isOwner)
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () async {
-                final success = await ApiService.deleteFood(food.id);
-
-                if (!context.mounted) return;
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Food marked as deleted"),
-                    ),
-                  );
-                  refreshData();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Failed to delete food"),
-                    ),
-                  );
-                }
-              },
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFE6D8C3).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                splashRadius: 22,
+                icon: const Icon(
+                  Icons.delete_rounded,
+                  color: Color(0xFFE6D8C3),
+                  size: 26,
+                ),
+                onPressed: () => deleteFoodItem(food),
+              ),
             ),
         ],
       ),

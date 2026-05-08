@@ -40,7 +40,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       final response = await http.post(
 
         Uri.parse(
-          'https://hungryhive-backend-t081.onrender.com/auth/send-otp',
+          'https://hungryhive-backend-f08i.onrender.com/auth/send-otp',
         ),
 
         headers: {

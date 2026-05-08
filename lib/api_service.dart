@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      "https://hungryhive-backend-t081.onrender.com";
+      "https://hungryhive-backend-f08i.onrender.com";
 
   // =========================
   // ADD FOOD
@@ -22,6 +22,12 @@ class ApiService {
     String ownerUserId,
   ) async {
     print("ADD FOOD API CALLED");
+    print("OWNER USER ID SENT: $ownerUserId");
+
+    if (ownerUserId.isEmpty) {
+      print("ERROR: ownerUserId is empty. Food owner will not be saved.");
+      return false;
+    }
 
     try {
       final response = await http.post(
@@ -42,7 +48,7 @@ class ApiService {
       );
 
       print("ADD RESPONSE: ${response.statusCode}");
-      print("BODY: ${response.body}");
+      print("ADD BODY: ${response.body}");
 
       return response.statusCode == 200 || response.statusCode == 201;
     } catch (e) {
@@ -55,21 +61,19 @@ class ApiService {
   // GET ALL FOOD
   // =========================
   static Future<List<dynamic>> getAllFood() async {
-    print("GET ALL FOOD API CALLED");
-
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/food/all"),
       );
 
-      print("GET RESPONSE: ${response.statusCode}");
-      print("DATA: ${response.body}");
+      print("GET ALL RESPONSE: ${response.statusCode}");
+      print("GET ALL BODY: ${response.body}");
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
 
-      throw Exception("Failed to load food data");
+      return [];
     } catch (e) {
       print("ERROR GET FOOD: $e");
       return [];
@@ -80,21 +84,19 @@ class ApiService {
   // GET AVAILABLE FOOD
   // =========================
   static Future<List<dynamic>> getAvailableFood() async {
-    print("GET AVAILABLE FOOD API CALLED");
-
     try {
       final response = await http.get(
         Uri.parse("$baseUrl/food/available"),
       );
 
-      print("AVAILABLE RESPONSE: ${response.statusCode}");
-      print("DATA: ${response.body}");
+      print("GET AVAILABLE RESPONSE: ${response.statusCode}");
+      print("GET AVAILABLE BODY: ${response.body}");
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
 
-      throw Exception("Failed to load available food");
+      return [];
     } catch (e) {
       print("ERROR AVAILABLE FOOD: $e");
       return [];
@@ -105,15 +107,13 @@ class ApiService {
   // ACCEPT FOOD
   // =========================
   static Future<bool> acceptFood(String id) async {
-    print("ACCEPT FOOD API CALLED");
-
     try {
       final response = await http.put(
         Uri.parse("$baseUrl/food/accept/$id"),
       );
 
       print("ACCEPT RESPONSE: ${response.statusCode}");
-      print("BODY: ${response.body}");
+      print("ACCEPT BODY: ${response.body}");
 
       return response.statusCode == 200;
     } catch (e) {
@@ -126,15 +126,13 @@ class ApiService {
   // ORDER FOOD
   // =========================
   static Future<bool> orderFood(String id) async {
-    print("ORDER FOOD API CALLED");
-
     try {
       final response = await http.put(
         Uri.parse("$baseUrl/food/order/$id"),
       );
 
       print("ORDER RESPONSE: ${response.statusCode}");
-      print("BODY: ${response.body}");
+      print("ORDER BODY: ${response.body}");
 
       return response.statusCode == 200;
     } catch (e) {
@@ -146,16 +144,26 @@ class ApiService {
   // =========================
   // DELETE FOOD
   // =========================
-  static Future<bool> deleteFood(String id) async {
+  static Future<bool> deleteFood(
+    String id,
+    String userId,
+  ) async {
     print("DELETE FOOD API CALLED");
+    print("DELETE FOOD ID: $id");
+    print("DELETE USER ID: $userId");
+
+    if (userId.isEmpty) {
+      print("ERROR: userId is empty. Delete blocked.");
+      return false;
+    }
 
     try {
       final response = await http.put(
-        Uri.parse("$baseUrl/food/delete/$id"),
+        Uri.parse("$baseUrl/food/delete/$id?userId=$userId"),
       );
 
       print("DELETE RESPONSE: ${response.statusCode}");
-      print("BODY: ${response.body}");
+      print("DELETE BODY: ${response.body}");
 
       return response.statusCode == 200;
     } catch (e) {

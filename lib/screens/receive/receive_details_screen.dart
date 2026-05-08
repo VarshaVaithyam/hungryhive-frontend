@@ -1,5 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'package:flutter/material.dart';
 import '../../api_service.dart';
 import '../../models/food_model.dart';
@@ -7,7 +5,7 @@ import '../thank_you/thank_you_receive_screen.dart';
 
 class ReceiveDetailScreen extends StatelessWidget {
   final FoodModel food;
-  final String currentUserId; // logged-in user id or phone number
+  final String currentUserId;
 
   const ReceiveDetailScreen({
     super.key,
@@ -17,8 +15,7 @@ class ReceiveDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isOwner =
-        food.id != null && food.id == currentUserId;
+    final bool isOwner = food.ownerUserId == currentUserId;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2E6D8),
@@ -28,11 +25,11 @@ class ReceiveDetailScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
           "DETAILS",
-          style: TextStyle(color: const Color(0xFF6B4F3A)),
+          style: TextStyle(color: Color(0xFF6B4F3A)),
         ),
-        bottom: PreferredSize(
+        bottom: const PreferredSize(
           preferredSize: Size.fromHeight(2),
-          child: const Divider(
+          child: Divider(
             color: Color(0xFF6B4F3A),
             thickness: 2,
           ),
@@ -42,14 +39,17 @@ class ReceiveDetailScreen extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () async {
-                final success = await ApiService.deleteFood(food.id);
+                final success = await ApiService.deleteFood(
+                  food.id,
+                  currentUserId,
+                );
 
                 if (!context.mounted) return;
 
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Food marked as deleted"),
+                      content: Text("Food deleted successfully"),
                     ),
                   );
 
@@ -57,7 +57,7 @@ class ReceiveDetailScreen extends StatelessWidget {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Failed to delete food"),
+                      content: Text("You can delete only your uploaded food"),
                     ),
                   );
                 }
@@ -71,7 +71,6 @@ class ReceiveDetailScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-
               _box("Name", food.donorName),
               _box("Name of Organization", food.organization),
               _box("Phone Number", food.phoneNumber),
@@ -80,10 +79,7 @@ class ReceiveDetailScreen extends StatelessWidget {
               _box("Quantity", food.quantity),
               _box("Description", food.description),
               _box("Status", food.status),
-
               const SizedBox(height: 20),
-
-              // show confirm only for non-owner and only when available
               if (!isOwner && food.status == "AVAILABLE")
                 ElevatedButton(
                   onPressed: () async {
@@ -115,10 +111,12 @@ class ReceiveDetailScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     "Confirm",
-                    style: TextStyle(color: const Color(0xFFE6D8C3), fontSize: 16),
+                    style: TextStyle(
+                      color: Color(0xFFE6D8C3),
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-
               const SizedBox(height: 20),
             ],
           ),
@@ -141,7 +139,8 @@ class ReceiveDetailScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(color: const Color(0xFFE6D8C3),
+            style: const TextStyle(
+              color: Color(0xFFE6D8C3),
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
@@ -149,7 +148,10 @@ class ReceiveDetailScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             (value == null || value.trim().isEmpty) ? "N/A" : value.trim(),
-            style: const TextStyle(color: const Color(0xFFE6D8C3), fontSize: 14),
+            style: const TextStyle(
+              color: Color(0xFFE6D8C3),
+              fontSize: 14,
+            ),
           ),
         ],
       ),

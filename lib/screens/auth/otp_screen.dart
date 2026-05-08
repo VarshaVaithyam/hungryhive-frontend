@@ -41,7 +41,7 @@ class _OTPScreenState extends State<OTPScreen> {
     try {
       final response = await http.post(
         Uri.parse(
-          'https://hungryhive-backend-t081.onrender.com/auth/verify-otp',
+          'https://hungryhive-backend-f08i.onrender.com/auth/verify-otp',
         ),
         headers: {
           'Content-Type': 'application/json',
