@@ -1,16 +1,73 @@
-# hungryhive
+# Hungry Hive Frontend
 
-A new Flutter project.
+Hungry Hive is a Flutter-based mobile application designed to reduce food waste by connecting food donors with people who need food. Users can log in using phone number OTP, donate surplus food, view available food listings, and manage their own uploaded food entries.
 
-## Getting Started
+This repository contains the frontend mobile application built with Flutter and connected to a deployed Spring Boot backend.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Phone number OTP login
+- Twilio-based authentication through backend
+- Add food donation details
+- View available food listings
+- Owner-based delete option
+- Food status management
+- Cloud backend API integration
+- Real device APK support
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## Tech Stack
+
+- Flutter
+- Dart
+- REST API Integration
+- SharedPreferences
+- Spring Boot Backend
+- MongoDB Atlas
+- Twilio OTP
+- Render Deployment
+
+---
+
+## Backend API
+
+```text
+https://hungryhive-backend-f08i.onrender.com
+
+---
+
+## Backend Repository
+https://github.com/VarshaVaithyam/hungryhive-backend
+
+---
+
+## APK Build
+flutter build apk --release
+
+---
+
+## APK Output Path
+build/app/outputs/flutter-apk/app-release.apk
+
+---
+
+## Setup 
+git clone FRONTEND_REPOSITORY_LINK
+cd hungryhive-frontend
+flutter pub get
+flutter run
+
+---
+
+## Project Status
+Hungry Hive frontend is fully connected with:
+
+Deployed Spring Boot backend
+MongoDB Atlas cloud database
+Twilio OTP authentication
+Render-hosted REST APIs
+Real Android APK testing
+
