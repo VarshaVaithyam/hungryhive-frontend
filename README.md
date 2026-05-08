@@ -71,3 +71,9 @@ Twilio OTP authentication
 Render-hosted REST APIs
 Real Android APK testing
 
+---
+# NOTE
+
+The backend is deployed using Render free-tier hosting.  
+Initial API requests may take a few seconds if the server is inactive due to cold-start behavior.
+
