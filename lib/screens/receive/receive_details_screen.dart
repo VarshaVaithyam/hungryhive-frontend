@@ -37,7 +37,11 @@ class ReceiveDetailScreen extends StatelessWidget {
         actions: [
           if (isOwner)
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
+              icon: const Icon(
+                Icons.delete_rounded,
+                color: Color(0xFF6B4F3A),
+                size: 28,
+              ),
               onPressed: () async {
                 final success = await ApiService.deleteFood(
                   food.id,
@@ -71,6 +75,7 @@ class ReceiveDetailScreen extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
+
               _box("Name", food.donorName),
               _box("Name of Organization", food.organization),
               _box("Phone Number", food.phoneNumber),
@@ -79,8 +84,10 @@ class ReceiveDetailScreen extends StatelessWidget {
               _box("Quantity", food.quantity),
               _box("Description", food.description),
               _box("Status", food.status),
+
               const SizedBox(height: 20),
-              if (!isOwner && food.status == "AVAILABLE")
+
+              if (food.status == "AVAILABLE")
                 ElevatedButton(
                   onPressed: () async {
                     final success = await ApiService.orderFood(food.id);
@@ -114,9 +121,11 @@ class ReceiveDetailScreen extends StatelessWidget {
                     style: TextStyle(
                       color: Color(0xFFE6D8C3),
                       fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
+
               const SizedBox(height: 20),
             ],
           ),
