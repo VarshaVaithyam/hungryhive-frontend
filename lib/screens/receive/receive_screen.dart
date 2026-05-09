@@ -16,6 +16,11 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   late Future<List<dynamic>> foodList;
   String? currentUserId;
 
+  static const Color backgroundColor = Color(0xFFF2E6D8);
+  static const Color primaryColor = Color(0xFF6B4F3A);
+  static const Color textColor = Color(0xFF3E2E22);
+  static const Color lightTextColor = Color(0xFFE6D8C3);
+
   @override
   void initState() {
     super.initState();
@@ -25,13 +30,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
 
   Future<void> loadCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
-
-    final savedUserId = prefs.getString('userId');
-
-    print("CURRENT USER ID FROM SHARED PREFS: $savedUserId");
-
     setState(() {
-      currentUserId = savedUserId;
+      currentUserId = prefs.getString('userId');
     });
   }
 
@@ -60,7 +60,6 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Food deleted successfully")),
       );
-
       refreshData();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,104 +73,126 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2E6D8),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
+        backgroundColor: backgroundColor,
         elevation: 0,
+        iconTheme: const IconThemeData(
+          color: primaryColor,
+          size: 30,
+        ),
         title: const Text(
           "RECEIVE",
           style: TextStyle(
-            color: Color(0xFF6B4F3A),
-            fontWeight: FontWeight.bold,
+            color: primaryColor,
+            fontWeight: FontWeight.w800,
+            fontSize: 34,
+            letterSpacing: 0.5,
           ),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(
-            color: Color(0xFF6B4F3A),
-            thickness: 2,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2),
+          child: Container(
+            height: 2,
+            color: primaryColor,
           ),
-        ),
-        iconTheme: const IconThemeData(
-          color: Color(0xFF6B4F3A),
         ),
       ),
-      body: FutureBuilder<List<dynamic>>(
-        future: foodList,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+      body: SafeArea(
+        child: FutureBuilder<List<dynamic>>(
+          future: foodList,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: primaryColor,
+                ),
+              );
+            }
 
-          final foods = snapshot.data ?? [];
+            final foods = snapshot.data ?? [];
 
-          final foodModels = foods
-              .map((e) => FoodModel.fromJson(e))
-              .where((food) => food.status != "DELETED")
-              .toList();
+            final foodModels = foods
+                .map((e) => FoodModel.fromJson(e))
+                .where((food) => food.status != "DELETED")
+                .toList();
 
-          if (foodModels.isEmpty) {
-            return const Center(
-              child: Text("No food available"),
-            );
-          }
+            if (foodModels.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No food available",
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              );
+            }
 
-          return RefreshIndicator(
-            onRefresh: refreshData,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: foodModels.length,
-              itemBuilder: (context, index) {
-                final food = foodModels[index];
+            return RefreshIndicator(
+              color: primaryColor,
+              onRefresh: refreshData,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 28,
+                ),
+                itemCount: foodModels.length,
+                itemBuilder: (context, index) {
+                  final food = foodModels[index];
 
-                return GestureDetector(
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ReceiveDetailScreen(
-                          food: food,
-                          currentUserId: currentUserId ?? "",
+                  return GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ReceiveDetailScreen(
+                            food: food,
+                            currentUserId: currentUserId ?? "",
+                          ),
                         ),
-                      ),
-                    );
+                      );
 
-                    refreshData();
-                  },
-                  child: _foodCard(context, food),
-                );
-              },
-            ),
-          );
-        },
+                      refreshData();
+                    },
+                    child: _foodCard(food),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _foodCard(BuildContext context, FoodModel food) {
-    print("------ FOOD CARD DEBUG ------");
-    print("CURRENT USER ID: $currentUserId");
-    print("FOOD OWNER USER ID: ${food.ownerUserId}");
-    print("FOOD ID: ${food.id}");
-    print("FOOD NAME: ${food.foodName}");
-    print("-----------------------------");
-
+  Widget _foodCard(FoodModel food) {
     final bool isOwner =
         currentUserId != null &&
         currentUserId!.isNotEmpty &&
         food.ownerUserId == currentUserId;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 22),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: 24,
+      ),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B4F3A),
-        borderRadius: BorderRadius.circular(16),
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Column(
@@ -181,52 +202,59 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                   food.organization.isEmpty
                       ? "No Organization"
                       : food.organization,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFFE6D8C3),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17,
+                    color: lightTextColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 28,
                   ),
                 ),
-
-                const SizedBox(height: 6),
-
+                const SizedBox(height: 14),
                 Text(
                   "Items: ${food.foodName}",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFFE6D8C3),
-                    fontSize: 16,
+                    color: lightTextColor,
+                    fontSize: 24,
+                    height: 1.3,
                   ),
                 ),
-
-                const SizedBox(height: 2),
-
+                const SizedBox(height: 8),
                 Text(
                   "Location: ${food.location}",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: Color(0xFFE6D8C3),
-                    fontSize: 16,
+                    color: lightTextColor,
+                    fontSize: 24,
+                    height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
-
-          if (isOwner)
+          if (isOwner) ...[
+            const SizedBox(width: 18),
             Container(
+              width: 70,
+              height: 70,
               decoration: BoxDecoration(
-                color: const Color(0xFFE6D8C3).withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
+                color: lightTextColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(22),
               ),
               child: IconButton(
-                splashRadius: 22,
+                splashRadius: 26,
                 icon: const Icon(
                   Icons.delete_rounded,
-                  color: Color(0xFFE6D8C3),
-                  size: 26,
+                  color: lightTextColor,
+                  size: 34,
                 ),
                 onPressed: () => deleteFoodItem(food),
               ),
             ),
+          ],
         ],
       ),
     );

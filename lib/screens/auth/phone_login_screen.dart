@@ -7,27 +7,46 @@ class PhoneLoginScreen extends StatefulWidget {
   const PhoneLoginScreen({super.key});
 
   @override
-  State<PhoneLoginScreen> createState() => _PhoneLoginScreenState();
+  State<PhoneLoginScreen> createState() =>
+      _PhoneLoginScreenState();
 }
 
-class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
-
-  final TextEditingController phoneController =
+class _PhoneLoginScreenState
+    extends State<PhoneLoginScreen> {
+  final TextEditingController
+      phoneController =
       TextEditingController();
 
   bool isLoading = false;
 
-  Future<void> sendOTP() async {
+  static const Color backgroundColor =
+      Color(0xFFF2E6D8);
 
-    final phone = phoneController.text.trim();
+  static const Color primaryColor =
+      Color(0xFF6B4F3A);
+
+  static const Color textColor =
+      Color(0xFF3E2E22);
+
+  static const Color lightTextColor =
+      Color(0xFFE6D8C3);
+
+  Future<void> sendOTP() async {
+    final phone =
+        phoneController.text.trim();
 
     if (phone.isEmpty) {
-      showMessage("Enter phone number");
+      showMessage(
+        "Enter phone number",
+      );
       return;
     }
 
-    if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
-      showMessage("Phone number must be 10 digits");
+    if (!RegExp(r'^[0-9]{10}$')
+        .hasMatch(phone)) {
+      showMessage(
+        "Phone number must be 10 digits",
+      );
       return;
     }
 
@@ -36,15 +55,14 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     });
 
     try {
-
       final response = await http.post(
-
         Uri.parse(
           'https://hungryhive-backend-f08i.onrender.com/auth/send-otp',
         ),
 
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type':
+              'application/json',
         },
 
         body: jsonEncode({
@@ -52,16 +70,18 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
         }),
       );
 
-      final data = jsonDecode(response.body);
+      final data =
+          jsonDecode(response.body);
 
       setState(() {
         isLoading = false;
       });
 
-      if (response.statusCode == 200) {
-
+      if (response.statusCode ==
+          200) {
         showMessage(
-          data['message'] ?? "OTP sent successfully",
+          data['message'] ??
+              "OTP sent successfully",
         );
 
         if (!mounted) return;
@@ -74,16 +94,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
             ),
           ),
         );
-
       } else {
-
         showMessage(
-          data['message'] ?? "Failed to send OTP",
+          data['message'] ??
+              "Failed to send OTP",
         );
       }
-
     } catch (e) {
-
       setState(() {
         isLoading = false;
       });
@@ -93,18 +110,19 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   }
 
   void showMessage(String message) {
-
-    ScaffoldMessenger.of(context).showSnackBar(
-
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
       SnackBar(
+        backgroundColor:
+            backgroundColor,
+
         content: Text(
           message,
           style: const TextStyle(
-            color: Color(0xFF3E2E22),
+            color: textColor,
+            fontSize: 15,
           ),
         ),
-
-        backgroundColor: const Color(0xFFF2E6D8),
       ),
     );
   }
@@ -117,131 +135,208 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
-      backgroundColor: const Color(0xFFF2E6D8),
+      backgroundColor:
+          backgroundColor,
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
+        backgroundColor:
+            backgroundColor,
         elevation: 0,
 
-        iconTheme: const IconThemeData(
+        iconTheme:
+            const IconThemeData(
           color: Colors.black,
+          size: 30,
         ),
       ),
 
-      body: Padding(
+      body: SafeArea(
+        child: Padding(
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 28,
+          ),
 
-        padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
 
-        child: Column(
+              children: [
+                const Text(
+                  "Enter mobile number",
 
-          mainAxisAlignment: MainAxisAlignment.center,
+                  textAlign:
+                      TextAlign.center,
 
-          children: [
-
-            const Text(
-              "Enter mobile number",
-
-              style: TextStyle(
-                color: Color(0xFF3E2E22),
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            const Text(
-              "We’ll send you an OTP",
-
-              style: TextStyle(
-                color: Color(0xFF3E2E22),
-                fontSize: 14,
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            TextField(
-
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              maxLength: 10,
-
-              decoration: InputDecoration(
-
-                hintText: "Enter phone number",
-
-                hintStyle: const TextStyle(
-                  color: Color(0xFF3E2E22),
-                ),
-
-                counterStyle: const TextStyle(
-                  color: Color(0xFF3E2E22),
-                ),
-
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-
-                  borderSide: const BorderSide(
-                    color: Color(0xFF3E2E22),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 32,
+                    fontWeight:
+                        FontWeight.w800,
+                    height: 1.2,
                   ),
                 ),
 
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                const SizedBox(
+                  height: 18,
+                ),
 
-                  borderSide: const BorderSide(
-                    color: Color(0xFF6B4F3A),
-                    width: 2,
+                const Text(
+                  "We’ll send you an OTP",
+
+                  textAlign:
+                      TextAlign.center,
+
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 21,
+                    fontWeight:
+                        FontWeight.w400,
                   ),
                 ),
-              ),
-            ),
 
-            const SizedBox(height: 30),
+                const SizedBox(
+                  height: 42,
+                ),
 
-            isLoading
+                TextField(
+                  controller:
+                      phoneController,
 
-                ? const CircularProgressIndicator()
+                  keyboardType:
+                      TextInputType.phone,
 
-                : SizedBox(
+                  maxLength: 10,
 
-                    width: double.infinity,
+                  style: const TextStyle(
+                    color: textColor,
+                    fontSize: 22,
+                  ),
 
-                    child: ElevatedButton(
+                  decoration:
+                      InputDecoration(
+                    hintText:
+                        "Enter phone number",
 
-                      onPressed: sendOTP,
+                    hintStyle:
+                        const TextStyle(
+                      color: textColor,
+                      fontSize: 22,
+                    ),
 
-                      style: ElevatedButton.styleFrom(
+                    counterStyle:
+                        const TextStyle(
+                      color: textColor,
+                      fontSize: 18,
+                    ),
 
-                        foregroundColor:
-                            const Color(0xFFE6D8C3),
+                    filled: true,
+                    fillColor:
+                        backgroundColor,
 
-                        backgroundColor:
-                            const Color(0xFF6B4F3A),
+                    contentPadding:
+                        const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 22,
+                    ),
 
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                        ),
+                    border:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        28,
+                      ),
+                    ),
+
+                    enabledBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        28,
                       ),
 
-                      child: const Text(
-                        "Send OTP",
+                      borderSide:
+                          const BorderSide(
+                        color: textColor,
+                        width: 1.5,
+                      ),
+                    ),
 
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
+                    focusedBorder:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        28,
+                      ),
+
+                      borderSide:
+                          const BorderSide(
+                        color:
+                            primaryColor,
+                        width: 2.2,
                       ),
                     ),
                   ),
-          ],
+                ),
+
+                const SizedBox(
+                  height: 38,
+                ),
+
+                isLoading
+                    ? const CircularProgressIndicator(
+                        color:
+                            primaryColor,
+                      )
+                    : SizedBox(
+                        width:
+                            double.infinity,
+                        height: 66,
+
+                        child:
+                            ElevatedButton(
+                          onPressed:
+                              sendOTP,
+
+                          style:
+                              ElevatedButton.styleFrom(
+                            elevation: 5,
+
+                            backgroundColor:
+                                primaryColor,
+
+                            foregroundColor:
+                                lightTextColor,
+
+                            shape:
+                                RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(
+                                32,
+                              ),
+                            ),
+                          ),
+
+                          child:
+                              const Text(
+                            "Send OTP",
+
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  24,
+                              fontWeight:
+                                  FontWeight
+                                      .w600,
+                            ),
+                          ),
+                        ),
+                      ),
+              ],
+            ),
+          ),
         ),
       ),
     );

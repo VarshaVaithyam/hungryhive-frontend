@@ -10,75 +10,119 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const Color backgroundColor =
+      Color(0xFFF2E6D8);
+
+  static const Color primaryColor =
+      Color(0xFF6B4F3A);
+
+  static const Color lightTextColor =
+      Color(0xFFE6D8C3);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2E6D8),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 120,
-        title: Row(
-          children: [
-            CircleAvatar(
-                radius: 55,
-                backgroundColor: const Color(0xFF6B4F3A),
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage('assets/icon.png'),
+      backgroundColor: backgroundColor,
+
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 18,
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 6),
+
+              // LOGO + TITLE
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 58,
+                    backgroundColor: primaryColor,
+                    child: const CircleAvatar(
+                      radius: 52,
+                      backgroundColor:
+                          backgroundColor,
+                      backgroundImage:
+                          AssetImage(
+                        'assets/icon.png',
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 18),
+
+                  const Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'HUNGRY HIVE',
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontWeight:
+                              FontWeight.w800,
+                          fontSize: 38,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 26),
+
+              Container(
+                height: 2,
+                color: primaryColor,
+              ),
+
+              const SizedBox(height: 44),
+
+              Expanded(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: _homeOption(
+                        text: 'PARTICIPATE',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const ParticipateScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    Expanded(
+                      child: _homeOption(
+                        text: 'RECEIVE',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const ReceiveScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            const SizedBox(width: 22,height: 44,),
-            const Text(
-              'HUNGRY HIVE',
-              style: TextStyle(
-                color: Color(0xFF6B4F3A),
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        child: Column(
-          children: [
-            const Divider(
-              color: Color(0xFF6B4F3A),
-              thickness: 2,
-            ),
-            const SizedBox(height: 40),
 
-            _homeOption(
-              text: 'PARTICIPATE',
-              textColor: const Color(0xFFE6D8C3),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ParticipateScreen(),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 26),
-
-            _homeOption(
-              text: 'RECEIVE',
-              textColor: const Color(0xFFE6D8C3),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ReceiveScreen(),
-                  ),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -86,25 +130,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _homeOption({
     required String text,
-    required Color textColor,
     required VoidCallback onTap,
   }) {
     return Material(
-      color: const Color(0xFF6B4F3A),
-      borderRadius: BorderRadius.circular(18),
+      color: primaryColor,
+      elevation: 5,
+      borderRadius: BorderRadius.circular(34),
+
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(34),
+
         onTap: onTap,
+
         child: Container(
           width: double.infinity,
-          height: 200,
+
           alignment: Alignment.center,
+
           child: Text(
             text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 24,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: lightTextColor,
+              fontSize: 38,
               fontWeight: FontWeight.w500,
+              letterSpacing: 1,
             ),
           ),
         ),

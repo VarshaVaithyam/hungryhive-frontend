@@ -13,120 +13,235 @@ class ReceiveDetailScreen extends StatelessWidget {
     required this.currentUserId,
   });
 
+  static const Color backgroundColor =
+      Color(0xFFF2E6D8);
+
+  static const Color primaryColor =
+      Color(0xFF6B4F3A);
+
+  static const Color textColor =
+      Color(0xFF3E2E22);
+
+  static const Color lightTextColor =
+      Color(0xFFE6D8C3);
+
   @override
   Widget build(BuildContext context) {
-    final bool isOwner = food.ownerUserId == currentUserId;
+    final bool isOwner =
+        food.ownerUserId == currentUserId;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2E6D8),
+      backgroundColor: backgroundColor,
+
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
+        backgroundColor: backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+
+        iconTheme: const IconThemeData(
+          color: textColor,
+          size: 30,
+        ),
+
         title: const Text(
           "DETAILS",
-          style: TextStyle(color: Color(0xFF6B4F3A)),
-        ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(
-            color: Color(0xFF6B4F3A),
-            thickness: 2,
+          style: TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 28,
+            letterSpacing: 0.5,
           ),
         ),
+
+        bottom: PreferredSize(
+          preferredSize:
+              const Size.fromHeight(2),
+
+          child: Container(
+            height: 2,
+            color: primaryColor,
+          ),
+        ),
+
         actions: [
           if (isOwner)
-            IconButton(
-              icon: const Icon(
-                Icons.delete_rounded,
-                color: Color(0xFF6B4F3A),
-                size: 28,
+            Padding(
+              padding:
+                  const EdgeInsets.only(
+                right: 8,
               ),
-              onPressed: () async {
-                final success = await ApiService.deleteFood(
-                  food.id,
-                  currentUserId,
-                );
+              child: IconButton(
+                icon: const Icon(
+                  Icons.delete_rounded,
+                  color: primaryColor,
+                  size: 30,
+                ),
 
-                if (!context.mounted) return;
-
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Food deleted successfully"),
-                    ),
+                onPressed: () async {
+                  final success =
+                      await ApiService
+                          .deleteFood(
+                    food.id,
+                    currentUserId,
                   );
 
-                  Navigator.pop(context, true);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("You can delete only your uploaded food"),
-                    ),
-                  );
-                }
-              },
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  if (success) {
+                    ScaffoldMessenger.of(
+                            context)
+                        .showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Food deleted successfully",
+                        ),
+                      ),
+                    );
+
+                    Navigator.pop(
+                      context,
+                      true,
+                    );
+                  } else {
+                    ScaffoldMessenger.of(
+                            context)
+                        .showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "You can delete only your uploaded food",
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 22,
+          ),
+
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              _box(
+                "Name",
+                food.donorName,
+              ),
 
-              _box("Name", food.donorName),
-              _box("Name of Organization", food.organization),
-              _box("Phone Number", food.phoneNumber),
-              _box("Address", food.location),
-              _box("Lists of items", food.foodName),
-              _box("Quantity", food.quantity),
-              _box("Description", food.description),
-              _box("Status", food.status),
+              _box(
+                "Name of Organization",
+                food.organization,
+              ),
 
-              const SizedBox(height: 20),
+              _box(
+                "Phone Number",
+                food.phoneNumber,
+              ),
 
-              if (food.status == "AVAILABLE")
-                ElevatedButton(
-                  onPressed: () async {
-                    final success = await ApiService.orderFood(food.id);
+              _box(
+                "Address",
+                food.location,
+              ),
 
-                    if (!context.mounted) return;
+              _box(
+                "Lists of items",
+                food.foodName,
+              ),
 
-                    if (success) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ThankYouReceiveScreen(),
-                        ),
+              _box(
+                "Quantity",
+                food.quantity,
+              ),
+
+              _box(
+                "Description",
+                food.description,
+              ),
+
+              _box(
+                "Status",
+                food.status,
+              ),
+
+              const SizedBox(height: 24),
+
+              if (food.status ==
+                  "AVAILABLE")
+                SizedBox(
+                  width: double.infinity,
+                  height: 64,
+
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final success =
+                          await ApiService
+                              .orderFood(
+                        food.id,
                       );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Failed to confirm order"),
+
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      if (success) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const ThankYouReceiveScreen(),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(
+                                context)
+                            .showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Failed to confirm order",
+                            ),
+                          ),
+                        );
+                      }
+                    },
+
+                    style:
+                        ElevatedButton
+                            .styleFrom(
+                      elevation: 5,
+
+                      backgroundColor:
+                          primaryColor,
+
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(
+                          32,
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 55),
-                    backgroundColor: const Color(0xFF6B4F3A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Confirm",
-                    style: TextStyle(
-                      color: Color(0xFFE6D8C3),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+
+                    child: const Text(
+                      "Confirm",
+                      style: TextStyle(
+                        color:
+                            lightTextColor,
+                        fontSize: 22,
+                        fontWeight:
+                            FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
             ],
           ),
         ),
@@ -134,32 +249,81 @@ class ReceiveDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _box(String title, String? value) {
+  Widget _box(
+    String title,
+    String? value,
+  ) {
+    final String displayValue =
+        (value == null ||
+                value.trim().isEmpty)
+            ? "N/A"
+            : value.trim();
+
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF6B4F3A),
-        borderRadius: BorderRadius.circular(14),
+
+      constraints:
+          const BoxConstraints(
+        minHeight: 110,
       ),
+
+      margin:
+          const EdgeInsets.only(
+        bottom: 18,
+      ),
+
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 18,
+      ),
+
+      decoration: BoxDecoration(
+        color: primaryColor,
+
+        borderRadius:
+            BorderRadius.circular(22),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black
+                .withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        mainAxisAlignment:
+            MainAxisAlignment.center,
+
         children: [
           Text(
             title,
+
             style: const TextStyle(
-              color: Color(0xFFE6D8C3),
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
+              color: lightTextColor,
+              fontWeight:
+                  FontWeight.w700,
+              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 4),
+
+          const SizedBox(height: 10),
+
           Text(
-            (value == null || value.trim().isEmpty) ? "N/A" : value.trim(),
+            displayValue,
+
+            softWrap: true,
+
             style: const TextStyle(
-              color: Color(0xFFE6D8C3),
-              fontSize: 14,
+              color: lightTextColor,
+              fontSize: 20,
+              height: 1.4,
             ),
           ),
         ],

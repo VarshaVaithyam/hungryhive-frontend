@@ -8,30 +8,55 @@ class AddFoodDetailScreen extends StatefulWidget {
   const AddFoodDetailScreen({super.key});
 
   @override
-  State<AddFoodDetailScreen> createState() => _AddFoodDetailScreenState();
+  State<AddFoodDetailScreen> createState() =>
+      _AddFoodDetailScreenState();
 }
 
-class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
+class _AddFoodDetailScreenState
+    extends State<AddFoodDetailScreen> {
   final nameController = TextEditingController();
-  final organizationController = TextEditingController();
-  final phoneController = TextEditingController();
-  final addressController = TextEditingController();
-  final itemsController = TextEditingController();
-  final quantityController = TextEditingController();
-  final descriptionController = TextEditingController();
+  final organizationController =
+      TextEditingController();
+  final phoneController =
+      TextEditingController();
+  final addressController =
+      TextEditingController();
+  final itemsController =
+      TextEditingController();
+  final quantityController =
+      TextEditingController();
+  final descriptionController =
+      TextEditingController();
 
   bool isLoading = false;
 
-  Future<void> _submitFood() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String ownerUserId = prefs.getString('userId') ?? '';
+  static const Color backgroundColor =
+      Color(0xFFF2E6D8);
 
-    print("BUTTON CLICKED");
-    print("LOGGED IN OWNER USER ID: $ownerUserId");
+  static const Color primaryColor =
+      Color(0xFF6B4F3A);
+
+  static const Color textColor =
+      Color(0xFF3E2E22);
+
+  static const Color lightTextColor =
+      Color(0xFFE6D8C3);
+
+  Future<void> _submitFood() async {
+    final prefs =
+        await SharedPreferences.getInstance();
+
+    final String ownerUserId =
+        prefs.getString('userId') ?? '';
 
     if (ownerUserId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("User not logged in. Please login again.")),
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content: Text(
+            "User not logged in. Please login again.",
+          ),
+        ),
       );
       return;
     }
@@ -40,7 +65,8 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
       isLoading = true;
     });
 
-    final bool success = await ApiService.addFood(
+    final bool success =
+        await ApiService.addFood(
       nameController.text.trim(),
       itemsController.text.trim(),
       addressController.text.trim(),
@@ -52,8 +78,6 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
       ownerUserId,
     );
 
-    print("SUCCESS: $success");
-
     if (!mounted) return;
 
     setState(() {
@@ -61,19 +85,20 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
     });
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Food Added Successfully")),
-      );
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const ThankYouScreen(),
+          builder: (context) =>
+              const ThankYouScreen(),
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to add food")),
+      ScaffoldMessenger.of(context)
+          .showSnackBar(
+        const SnackBar(
+          content:
+              Text("Failed to add food"),
+        ),
       );
     }
   }
@@ -92,28 +117,63 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
 
   Widget _inputField(
     String hint,
-    TextEditingController controller, {
-    int maxLines = 1,
-    Color textColor = const Color(0xFFE6D8C3),
-  }) {
+    TextEditingController controller,
+  ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding:
+          const EdgeInsets.only(bottom: 22),
+
       child: TextField(
         controller: controller,
-        maxLines: maxLines,
-        style: TextStyle(color: textColor),
+
+        minLines: 1,
+        maxLines: null,
+
+        style: const TextStyle(
+          color: lightTextColor,
+          fontSize: 20,
+        ),
+
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFFE6D8C3)),
-          filled: true,
-          fillColor: const Color(0xFF6B4F3A),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+
+          hintStyle: const TextStyle(
+            color: lightTextColor,
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
           ),
+
+          filled: true,
+          fillColor: primaryColor,
+
+          contentPadding:
+              const EdgeInsets.symmetric(
+            horizontal: 26,
+            vertical: 28,
+          ),
+
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius:
+                BorderRadius.circular(30),
             borderSide: BorderSide.none,
+          ),
+
+          enabledBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(30),
+            borderSide: BorderSide.none,
+          ),
+
+          focusedBorder:
+              OutlineInputBorder(
+            borderRadius:
+                BorderRadius.circular(30),
+            borderSide:
+                const BorderSide(
+              color: lightTextColor,
+              width: 1.2,
+            ),
           ),
         ),
       ),
@@ -123,71 +183,153 @@ class _AddFoodDetailScreenState extends State<AddFoodDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2E6D8),
+      backgroundColor: backgroundColor,
+
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2E6D8),
+        backgroundColor: backgroundColor,
         elevation: 0,
+
+        iconTheme: const IconThemeData(
+          color: textColor,
+          size: 30,
+        ),
+
         title: const Text(
           'ADD FOOD DETAIL',
           style: TextStyle(
-            color: Color(0xFF3E2E22),
-            fontWeight: FontWeight.bold,
+            color: textColor,
+            fontWeight: FontWeight.w800,
+            fontSize: 28,
           ),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: Divider(
-            color: Color(0xFF6B4F3A),
-            thickness: 2,
+
+        bottom: PreferredSize(
+          preferredSize:
+              const Size.fromHeight(2),
+
+          child: Container(
+            height: 2,
+            color: primaryColor,
           ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF3E2E22)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Food Information',
-              style: TextStyle(
-                color: Color(0xFF3E2E22),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _inputField('Name', nameController),
-            _inputField('Organization', organizationController),
-            _inputField('Phone', phoneController),
-            _inputField('Address', addressController, maxLines: 2),
-            _inputField('Items', itemsController, maxLines: 3),
-            _inputField('Quantity', quantityController, maxLines: 2),
-            _inputField('Description', descriptionController, maxLines: 3),
-          ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-        child: ElevatedButton(
-          onPressed: isLoading ? null : _submitFood,
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 56),
-            backgroundColor: const Color(0xFF6B4F3A),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-            ),
+
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding:
+              const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
           ),
-          child: isLoading
-              ? const CircularProgressIndicator(color: Colors.black)
-              : const Text(
-                  'SUBMIT',
-                  style: TextStyle(
-                    color: Color(0xFFE6D8C3),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+
+            children: [
+              const Text(
+                'Food Information',
+
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 22,
+                  fontWeight:
+                      FontWeight.w700,
                 ),
+              ),
+
+              const SizedBox(height: 28),
+
+              _inputField(
+                'Name',
+                nameController,
+              ),
+
+              _inputField(
+                'Organization',
+                organizationController,
+              ),
+
+              _inputField(
+                'Phone',
+                phoneController,
+              ),
+
+              _inputField(
+                'Address',
+                addressController,
+              ),
+
+              _inputField(
+                'Items',
+                itemsController,
+              ),
+
+              _inputField(
+                'Quantity',
+                quantityController,
+              ),
+
+              _inputField(
+                'Description',
+                descriptionController,
+              ),
+
+              const SizedBox(height: 24),
+
+              SizedBox(
+                width: double.infinity,
+                height: 68,
+
+                child: ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : _submitFood,
+
+                  style:
+                      ElevatedButton.styleFrom(
+                    elevation: 5,
+
+                    backgroundColor:
+                        primaryColor,
+
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        34,
+                      ),
+                    ),
+                  ),
+
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 26,
+                          width: 26,
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color:
+                                lightTextColor,
+                          ),
+                        )
+                      : const Text(
+                          'SUBMIT',
+                          style: TextStyle(
+                            color:
+                                lightTextColor,
+                            fontSize: 24,
+                            fontWeight:
+                                FontWeight.w600,
+                            letterSpacing: 1,
+                          ),
+                        ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
